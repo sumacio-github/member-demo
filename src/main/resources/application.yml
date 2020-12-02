@@ -1,0 +1,15 @@
+spring:
+  profiles:
+    active: local
+  datasource:
+    url: jdbc:h2:mem:testdb
+  h2:
+    console:
+      enabled: true
+
+logging:
+  pattern:
+    console: "%d %-5level %X{X-REQUEST-ID} %thread %logger %msg%n"
+  level:
+    root: WARN
+    com.optum: INFO
