@@ -1,4 +1,4 @@
 logging:
   level:
     root: INFO
-    com.optum: DEBUG
+    io.sumac: DEBUG

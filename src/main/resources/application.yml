@@ -1,15 +1,41 @@
 spring:
-  profiles:
-    active: local
+#  profiles:
+#    active: local
   datasource:
     url: jdbc:h2:mem:testdb
   h2:
     console:
       enabled: true
 
+management:
+  endpoints:
+    enabled-by-default: false
+    web:
+      exposure:
+        include: health, prometheus
+  endpoint:
+    health:
+      enabled: true
+    prometheus:
+      enabled: true
+
 logging:
+#  pattern:
+#    console: "%d %-5level %X{X-REQUEST-ID} %thread %logger %msg%n"
   pattern:
-    console: "%d %-5level %X{X-REQUEST-ID} %thread %logger %msg%n"
+#    console: "%clr(%d){faint} %clr(${LOG_LEVEL_PATTERN:%5p}) %clr(${PID:-}){magenta} %clr(%thread){faint} %clr(%logger){cyan} %clr(%X{X-REQUEST-ID}){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:%wEx}"
+    TIMESTAMP: "%clr(%d){faint}"
+    LEVEL: "%clr(${LOG_LEVEL_PATTERN:%5p})"
+    PID: "%clr(${PID:-}){magenta}"
+    THREAD: "[%clr(%thread){faint}]"
+    LOGGER: "%clr(%logger){cyan}"
+    REQUEST_ID: "\"%clr(%X{X-Request-ID}){faint}\""
+    MESSAGE: "%m%n${LOG_EXCEPTION_CONVERSION_WORD:%wEx}"
+    console: "${logging.pattern.TIMESTAMP} ${logging.pattern.LEVEL} ${logging.pattern.PID} ${logging.pattern.THREAD} ${logging.pattern.LOGGER} ${logging.pattern.REQUEST_ID} ${logging.pattern.MESSAGE}"
   level:
     root: WARN
-    com.optum: INFO
+    io.sumac: INFO
+
+
+
+
