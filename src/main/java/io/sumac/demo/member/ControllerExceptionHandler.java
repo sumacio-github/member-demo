@@ -25,7 +25,7 @@ public class ControllerExceptionHandler {
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
-        return standardClientErrorResponse(ClientError.builder().reason("Request has validation errors").timestamp(Instant.now()).validationErrors(errors).build(), HttpStatus.BAD_REQUEST, e);
+        return standardClientErrorResponse(ClientError.builder().reason("Request has validation errors").validationErrors(errors).build(), HttpStatus.BAD_REQUEST, e);
     }
 
     @ExceptionHandler
@@ -35,7 +35,7 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<?> handle(ApplicationException e) {
-        var body = ClientError.builder().reason(e.getMessage()).timestamp(e.getTimestamp()).build();
+        var body = ClientError.builder().reason(e.getMessage()).build();
         return standardClientErrorResponse(body, e.getHttpStatus(), e);
     }
 
@@ -56,7 +56,6 @@ public class ControllerExceptionHandler {
     @Builder
     public static class ClientError {
         private String reason;
-        private Instant timestamp;
         @Builder.Default
         private Map<String, String> validationErrors = new HashMap<>();
     }
