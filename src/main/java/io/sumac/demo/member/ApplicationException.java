@@ -22,11 +22,49 @@ public abstract class ApplicationException extends IllegalArgumentException {
     }
 
     public static ApplicationException duplicateLogin(String login) {
-        return new DuplicationConstraintViolationException(String.format("A record with login '%s' already exists", login));
+        return new DuplicationConstraintViolationException(String.format("A resource with login '%s' already exists", login));
+    }
+
+    public static ApplicationException idMismatch(int urlId, int bodyId) {
+        return new UneditableFieldException(String.format("The 'id' %s cannot be changed to %s", urlId, bodyId));
+    }
+
+    public static ApplicationException createFailed() {
+        return new UnprocessableRequestException("A resource was not created");
+    }
+
+    public static ApplicationException notFound() {
+        return new NotFoundException("Resource not found");
     }
 
     public static class DuplicationConstraintViolationException extends ApplicationException {
         private DuplicationConstraintViolationException(String msg) {
+            super(msg);
+        }
+    }
+
+    public static class UneditableFieldException extends ApplicationException {
+        private UneditableFieldException(String msg) {
+            super(msg);
+        }
+    }
+
+    public static class UnprocessableRequestException extends ApplicationException {
+        @Override
+        public HttpStatus getHttpStatus() {
+            return HttpStatus.UNPROCESSABLE_ENTITY;
+        }
+        private UnprocessableRequestException(String msg) {
+            super(msg);
+        }
+    }
+
+    public static class NotFoundException extends ApplicationException {
+        @Override
+        public HttpStatus getHttpStatus() {
+            return HttpStatus.NOT_FOUND;
+        }
+        private NotFoundException(String msg) {
             super(msg);
         }
     }

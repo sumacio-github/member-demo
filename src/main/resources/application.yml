@@ -33,7 +33,7 @@ logging:
     MESSAGE: "%m%n${LOG_EXCEPTION_CONVERSION_WORD:%wEx}"
     console: "${logging.pattern.TIMESTAMP} ${logging.pattern.LEVEL} ${logging.pattern.PID} ${logging.pattern.THREAD} ${logging.pattern.LOGGER} ${logging.pattern.REQUEST_ID} ${logging.pattern.MESSAGE}"
   level:
-    root: WARN
+    root: INFO
     io.sumac: INFO
 
 

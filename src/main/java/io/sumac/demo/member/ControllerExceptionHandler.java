@@ -29,6 +29,11 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler
+    public ResponseEntity<?> handle(ApplicationException.NotFoundException e) {
+        return standardClientErrorResponse(e.getHttpStatus(), e);
+    }
+
+    @ExceptionHandler
     public ResponseEntity<?> handle(ApplicationException e) {
         var body = ClientError.builder().reason(e.getMessage()).timestamp(e.getTimestamp()).build();
         return standardClientErrorResponse(body, e.getHttpStatus(), e);
@@ -37,6 +42,11 @@ public class ControllerExceptionHandler {
     private ResponseEntity<?> standardClientErrorResponse(ClientError body, HttpStatus httpStatus, Exception e) {
         log.info("Client error. Returning status {}. Reason: {}", httpStatus, e.toString());
         return ResponseEntity.status(httpStatus).body(body);
+    }
+
+    private ResponseEntity<?> standardClientErrorResponse(HttpStatus httpStatus, Exception e) {
+        log.info("Client error. Returning status {}. Reason: {}", httpStatus, e.toString());
+        return ResponseEntity.status(httpStatus).build();
     }
 
     @Data

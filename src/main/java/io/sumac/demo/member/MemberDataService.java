@@ -16,11 +16,11 @@ public class MemberDataService {
         this.repository = repository;
     }
 
-    public int create(MemberData member) {
+    public Member create(MemberData member) {
         if (isLoginExists(member.getLogin())) {
             throw ApplicationException.duplicateLogin(member.getLogin());
         }
-        return repository.create(member);
+        return repository.getById(repository.create(member)).orElseThrow(ApplicationException::createFailed);
     }
 
     public Optional<Member> getById(int id) {
@@ -31,15 +31,17 @@ public class MemberDataService {
         return repository.findByAll();
     }
 
-    public boolean update(int id, Member member) {
+    public Member update(int id, Member member) {
         var storedMember = repository.getById(id);
-        if (storedMember.isEmpty()) {
-            return false;
+        if (storedMember.isPresent()) {
+            if (!storedMember.get().getLogin().equals(member.getLogin()) && isLoginExists(member.getLogin())) {
+                throw ApplicationException.duplicateLogin(member.getLogin());
+            }
+            if (repository.update(id, member)) {
+                return repository.getById(id).orElseThrow(ApplicationException::notFound);
+            }
         }
-        if (!storedMember.get().getLogin().equals(member.getLogin()) && isLoginExists(member.getLogin())) {
-            throw ApplicationException.duplicateLogin(member.getLogin());
-        }
-        return repository.update(id, member);
+        throw ApplicationException.notFound();
     }
 
     public boolean delete(int id) {

@@ -45,7 +45,7 @@ public class MemberControllerTest {
         Mockito.when(members.findByAll()).thenReturn(data);
 
         // Act
-        RequestBuilder request = MockMvcRequestBuilders.get("/members");
+        RequestBuilder request = MockMvcRequestBuilders.get("/api/v1/members");
         MvcResult result = mvc.perform(request).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         JsonNode response = mapper.readTree(result.getResponse().getContentAsString());
 
@@ -61,7 +61,7 @@ public class MemberControllerTest {
         Assertions.assertEquals("ACTIVE", member1.path("status").asText());
         Assertions.assertEquals(NOW_STRING, member1.path("joined").asText());
         Assertions.assertEquals(1.1, member1.path("rating").asDouble());
-        Assertions.assertEquals(true, member1.path("id").isMissingNode());
+        Assertions.assertEquals(1, member1.path("id").asInt());
         Assertions.assertEquals(true, member1.path("aliasName").isNull());
 
         Assertions.assertEquals("tester2", member2.path("name").asText());
@@ -69,7 +69,7 @@ public class MemberControllerTest {
         Assertions.assertEquals("ACTIVE", member2.path("status").asText());
         Assertions.assertEquals(NOW_STRING, member2.path("joined").asText());
         Assertions.assertEquals(1.2, member2.path("rating").asDouble());
-        Assertions.assertEquals(true, member2.path("id").isMissingNode());
+        Assertions.assertEquals(2, member2.path("id").asInt());
         Assertions.assertEquals("test2", member2.path("aliasName").asText());
 
         Assertions.assertEquals("tester3", member3.path("name").asText());
@@ -77,7 +77,7 @@ public class MemberControllerTest {
         Assertions.assertEquals("ACTIVE", member3.path("status").asText());
         Assertions.assertEquals(NOW_STRING, member3.path("joined").asText());
         Assertions.assertEquals(1.3, member3.path("rating").asDouble());
-        Assertions.assertEquals(true, member3.path("id").isMissingNode());
+        Assertions.assertEquals(3, member3.path("id").asInt());
         Assertions.assertEquals(true, member3.path("aliasName").isNull());
 
     }
@@ -90,7 +90,7 @@ public class MemberControllerTest {
         Mockito.when(members.findByAll()).thenReturn(data);
 
         // Act
-        RequestBuilder request = MockMvcRequestBuilders.get("/members");
+        RequestBuilder request = MockMvcRequestBuilders.get("/api/v1/members");
         MvcResult result = mvc.perform(request).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         JsonNode response = mapper.readTree(result.getResponse().getContentAsString());
 
@@ -108,7 +108,7 @@ public class MemberControllerTest {
         Mockito.when(members.getById(1)).thenReturn(data);
 
         // Act
-        RequestBuilder request = MockMvcRequestBuilders.get("/members/1");
+        RequestBuilder request = MockMvcRequestBuilders.get("/api/v1/members/1");
         MvcResult result = mvc.perform(request).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         JsonNode response = mapper.readTree(result.getResponse().getContentAsString());
 
@@ -119,7 +119,7 @@ public class MemberControllerTest {
         Assertions.assertEquals("ACTIVE", member.path("status").asText());
         Assertions.assertEquals(NOW_STRING, member.path("joined").asText());
         Assertions.assertEquals(1.1, member.path("rating").asDouble());
-        Assertions.assertEquals(true, member.path("id").isMissingNode());
+        Assertions.assertEquals(1, member.path("id").asInt());
         Assertions.assertEquals(true, member.path("aliasName").isNull());
 
     }
@@ -133,7 +133,7 @@ public class MemberControllerTest {
         Mockito.when(members.getById(1)).thenReturn(data);
 
         // Act
-        RequestBuilder request = MockMvcRequestBuilders.get("/members/1");
+        RequestBuilder request = MockMvcRequestBuilders.get("/api/v1/members/1");
         MvcResult result = mvc.perform(request).andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
         JsonNode response = mapper.readTree(result.getResponse().getContentAsString());
 
@@ -149,7 +149,7 @@ public class MemberControllerTest {
         Mockito.when(members.delete(1)).thenReturn(true);
 
         // Act
-        RequestBuilder request = MockMvcRequestBuilders.delete("/members/1");
+        RequestBuilder request = MockMvcRequestBuilders.delete("/api/v1/members/1");
         MvcResult result = mvc.perform(request).andExpect(MockMvcResultMatchers.status().isNoContent()).andReturn();
         JsonNode response = mapper.readTree(result.getResponse().getContentAsString());
 
@@ -165,7 +165,7 @@ public class MemberControllerTest {
         Mockito.when(members.delete(1)).thenReturn(false);
 
         // Act
-        RequestBuilder request = MockMvcRequestBuilders.delete("/members/1");
+        RequestBuilder request = MockMvcRequestBuilders.delete("/api/v1/members/1");
         MvcResult result = mvc.perform(request).andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
         JsonNode response = mapper.readTree(result.getResponse().getContentAsString());
 
@@ -181,18 +181,24 @@ public class MemberControllerTest {
         var data = mapper.createObjectNode();
         data.put("name", "tester1");
         data.put("login", "tester1");
+        var output = new Member(1, "tester1", "tester1", "tester1", 1.1f, "ACTIVE", LocalDateTime.now());
 
-        Mockito.when(members.create(mapper.treeToValue(data, MemberData.class))).thenReturn(1);
+        Mockito.when(members.create(mapper.treeToValue(data, MemberData.class))).thenReturn(output);
 
         // Act
-        RequestBuilder request = MockMvcRequestBuilders.post("/members").content(data.toString()).contentType(MediaType.APPLICATION_JSON_VALUE);
+        RequestBuilder request = MockMvcRequestBuilders.post("/api/v1/members").content(data.toString()).contentType(MediaType.APPLICATION_JSON_VALUE);
         MvcResult result = mvc.perform(request).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
         JsonNode response = mapper.readTree(result.getResponse().getContentAsString());
         var location = result.getResponse().getHeader("Location");
 
         // Assert
-        Assertions.assertTrue(response.isEmpty());
-        Assertions.assertEquals("http://localhost/members/1", location);
+        Assertions.assertEquals(1, response.get("id").asInt());
+        Assertions.assertEquals("tester1", response.get("name").asText());
+        Assertions.assertEquals("tester1", response.get("aliasName").asText());
+        Assertions.assertEquals("tester1", response.get("login").asText());
+        Assertions.assertEquals("ACTIVE", response.get("status").asText());
+        Assertions.assertEquals(1.1, response.get("rating").asDouble());
+        Assertions.assertEquals("http://localhost/api/v1/members/1", location);
 
     }
 
@@ -203,19 +209,25 @@ public class MemberControllerTest {
         var data = mapper.createObjectNode();
         data.put("name", "tester1");
         data.put("login", "tester1");
+        data.put("aliasName", "tester1");
         data.put("rating", 1.1);
         data.put("status", "ACTIVE");
         data.put("joined", NOW_STRING);
+        data.put("id", 1);
 
-        Mockito.when(members.update(1, mapper.treeToValue(data, Member.class))).thenReturn(true);
+        Mockito.when(members.update(1, mapper.treeToValue(data, Member.class))).thenReturn(mapper.treeToValue(data, Member.class));
 
         // Act
-        RequestBuilder request = MockMvcRequestBuilders.put("/members/1").content(data.toString()).contentType(MediaType.APPLICATION_JSON_VALUE);
-        MvcResult result = mvc.perform(request).andExpect(MockMvcResultMatchers.status().isNoContent()).andReturn();
+        RequestBuilder request = MockMvcRequestBuilders.put("/api/v1/members/1").content(data.toString()).contentType(MediaType.APPLICATION_JSON_VALUE);
+        MvcResult result = mvc.perform(request).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         JsonNode response = mapper.readTree(result.getResponse().getContentAsString());
 
         // Assert
-        Assertions.assertTrue(response.isEmpty());
-
+        Assertions.assertEquals(1, response.get("id").asInt());
+        Assertions.assertEquals("tester1", response.get("name").asText());
+        Assertions.assertEquals("tester1", response.get("aliasName").asText());
+        Assertions.assertEquals("tester1", response.get("login").asText());
+        Assertions.assertEquals("ACTIVE", response.get("status").asText());
+        Assertions.assertEquals(1.1, response.get("rating").asDouble());
     }
 }
