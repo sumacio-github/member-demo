@@ -2,6 +2,7 @@ package io.sumac.demo.member;
 
 import io.micrometer.core.instrument.util.StringUtils;
 import org.slf4j.MDC;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 @Component
+@Order(0)
 public class Slf4jMDCFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
