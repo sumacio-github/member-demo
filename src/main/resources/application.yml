@@ -36,6 +36,13 @@ logging:
     root: WARN
     io.sumac: INFO
 
-
+application:
+  sql:
+    member:
+      insert: insert into members (name, alias_name, login) values (?, ?, ?)
+      update: update members set name=?, alias_name=?, login=?, rating=?, status=?, joined=? where id=?
+      delete: delete from members where id=?
+      select: select id, name, alias_name, login, rating, status, joined from members where id=?
+      select-all: select id, name, alias_name, login, rating, status, joined from members
 
 
